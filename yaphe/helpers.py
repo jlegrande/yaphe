@@ -14,3 +14,7 @@ def img(src, alt='', attrs={}):
     if alt:
         attrs['alt'] = alt
     return Elem("img", attrs=attrs) 
+
+def a(href, content, attrs={}):
+    attrs['href'] = href
+    return Elem('a', content, attrs)

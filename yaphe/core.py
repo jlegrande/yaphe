@@ -44,7 +44,7 @@ class Elem(object):
         elif isinstance(other, Elem):    # Nested elem since there is no content
             self._sub_elems.append(other)
         else:
-            # No content, but 'other' is not an Elem instance so we just
+            # No content and 'other' is not an Elem instance so we just
             # append it.
             self._suffix_markup = other
             
@@ -61,13 +61,12 @@ class Elem(object):
         return self
 
     def _merge_attrs_with_haml_attrs(self, attrs, haml_attrs):
-        for key in ('id', 'class'):
-            v = haml_attrs.get(key)
-            if v:
-                if attrs.get(key):
-                    v |= set(attrs[key].split())
+        for key in haml_attrs:
+            v = haml_attrs[key]
+            if attrs.get(key):
+                v |= set(attrs[key].split())
                         
-                attrs[key] = ' '.join(list(v))
+            attrs[key] = ' '.join(list(v))
 
         return attrs
     

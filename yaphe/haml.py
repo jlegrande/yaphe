@@ -29,6 +29,8 @@ class HamlData(object):
             pass
 
     def _add_attrs_from_shortcuts(self, haml_line):
+        # remove attr hash from haml_line
+        haml_line = ''.join(re.split('\{.+\}', haml_line))
         ids = set(re.findall("#(\w+)", haml_line))
         classes = set(re.findall("\.(\w+)", haml_line))
         for key, v in (('id', ids), ('class', classes)):

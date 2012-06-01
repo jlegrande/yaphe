@@ -1,14 +1,23 @@
 import config, haml
+import doctypes
+import os, shutil
+
+class Page(object):
+    def __init__(self, doctype=doctypes.xhtml_transitional):
+        self.doctype = doctype
+        self.html = Elem('html')
+        
+    def __add__(self, html):
+        self.html += html
+        return self
     
+    def render(self):
+        return self.doctype + '\n' + self.html.render()
+        
 class Elem(object):
     def __init__(self, tag, content='', attrs=None, self_closing=''):
-        """HTML Element class
-        
-        Arguments:
-        - `tag`:
-        - `contents`:
-        - `attrs`:
-        """
+        """HTML Element class"""
+
         if not attrs:
             attrs = {}
             
@@ -71,9 +80,9 @@ class Elem(object):
         return attrs
     
     def _getAttrs(self):
-        attrs = ' '
+        attrs = " "
         for attr in self.attrs:
-            attrs += '%s="%s" ' % (attr, self.attrs[attr])
+            attrs += "%s='%s' " % (attr, self.attrs[attr])
 
         return attrs[:-1]
 
@@ -100,7 +109,7 @@ class Elem(object):
         elif self._self_closing:
             elem += self._self_closing
         else:
-            if config.do_indent:
+            if config.do_indent and self._sub_elems:
                 elem += "\n"
                 
             new_depth = depth + 1
@@ -109,10 +118,28 @@ class Elem(object):
 
                 if config.do_indent:
                     elem += "\n"
-                    
+
+            # If the element has no sub elements then just
+            # append the closing tag:
+            if not self._sub_elems:
+                indentation = ''
+                
             elem += "%s</%s>" % (indentation, self.tag)
 
         elem  += self._suffix_markup
         
         return elem
+        
+
+def build_app(page, outdir):
+    dirname = os.path.dirname(__file__)
+    if not os.path.exists(outdir):
+        os.mkdir(outdir)
+
+    shutil.rmtree(os.path.join(outdir, 'css'))
+    shutil.copytree(os.path.join(dirname, 'resources', 'css'),
+                    os.path.join(outdir, 'css'))
+    f = open(os.path.join(outdir, 'index.html'), 'w')
+    f.write(page.render())
+    f.close()
         

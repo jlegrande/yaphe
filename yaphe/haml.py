@@ -12,7 +12,7 @@ class HamlData(object):
         try:
             if haml_line.startswith(".") or haml_line.startswith("#"):
                 return 'div'
-        
+
             return re.match("\w+", haml_line).group(0)
         except AttributeError:
             raise RuntimeError("No tag was specified in %s" % haml_line)

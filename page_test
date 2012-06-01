@@ -1,0 +1,153 @@
+#!/usr/bin/env python
+
+from yaphe.helpers import *
+page = html_transitional_page()
+html = elem('html')
+head = elem('head')
+head += elem('title', 'Pro Wrestling Superstar 2')
+head += screen_css('/static/home.css')
+html += head
+
+body = elem('body')
+content = elem('#content')
+content += img('/static/pws2Logo.png')
+content += elem('h2#tagline', 'ALL THE ' + elem('span#highlight', 'ACTION') +\
+                    ' OF LIVE MATCHES RIGHT ON YOUR DESKTOP!')
+#content += 
+body += content
+html += body
+page += html
+print page.render()
+print '==================== TEST ======================'
+e = elem
+t = a('url.html', 'Hello World!') + elem('br')
+
+print t.render()
+
+def scoreBox(team):
+    box = e('.scoreBox#team%dScoreBox' % team)
+    box += e('.scoreLabel', 'Total Score')
+    box += e('.scoreValue#team%dScore' % team)
+
+    return box
+
+def teamBox(side, img=''):
+    box = e('#teamBox%s' % side)
+    box += e('img#manIn%s' % side)
+    return box
+
+# def longCell(side, thickBottom=False, colspan=1):
+#     if side == 'L':
+        
+def shortCell(side, eId, num):
+    numberCellClass = 'acCellNumber'
+    if side == 'R':
+        numberCellClass = 'acCellNumberRightJust'
+
+    box = e('td.acShortCell%s#%s' % (side, eId))
+    box += e('.%s' % numberCellClass, num)
+    box += e('.acValue')
+    
+    return box
+
+def longCellR(eId, num):
+    box = e('td.acLongCellR.acThinBottom#%s' % eId)
+    box += e('.acCellNumberSmallRightJust', num)
+    box += e('.acValue')
+    return box
+
+def twoColumnCard(cardName, idPrefix):
+    items = []
+    items.append((e('td.acHeaderL {:colspan => "2"}', cardName),))
+    for i in range(5):
+        items.append((shortCell('L', '%s%d' % (idPrefix, i), i+2),
+                      shortCell('R', '%s%d' % (idPrefix, i + 5), i+7)))
+    box = e('td.acLongCellL.acThickBottom#%s10{:colspan => "2"}' % idPrefix)
+    box += e('.acCellNumberPadded')
+    box += e('.acValue')
+    items.append((box,))
+    
+    return items
+
+def oneColumnCard(cardName, idPrefix):
+    items = []
+    items.append((e('td.acHeaderR.acThickTop', cardName),))
+    for i in range(9):
+        items.append((longCellR('%s%d' % (idPrefix, i), i+2),))
+    box = e('td.acLongCellR.acThickBottom#%s10' % idPrefix)
+    box += e('.acCellNumberSmallRightJust', 12)
+    box += e('.acValue')
+    items.append((box,))
+    return items
+
+def actionCard(team):
+    card = e('.actionCard#ActionCard%d' % team)
+    cardTable = e('table {:cellpadding => "0", :cellspacing => "0"}')
+    gCard = twoColumnCard('GENERAL CARD', 't%d_gc' % team)
+    dCard = twoColumnCard('DEFENSIVE CARD', 't%d_dc' % team)
+    # specialty card
+    spec = []
+    spec.append((e('td.acHeaderL {:colspan => "2"}'),))
+    spec.append((e('td.acLongCellL.acThinBottom.acCentered#t%d_spec {:colspan => "2"}' % team),))
+    for i in range(5):
+        specItem = e('td.acLongCellL.acThinBottom#t%d_spec0 {:colspan => "2"}' % team)
+        specItem += e('.acCellNumber', i+1)
+        specItem += e('.acValue')
+        spec.append((specItem,))
+
+    spec.append((,))
+    oCard = oneColumnCard('OFFENSIVE CARD', 't%d_os' % team)
+    card += cardTable
+    return card
+
+# match interface
+page = html5_page()
+html = e('html')
+
+head = e('head')
+head += screen_css('match-interface.css')
+head += js_file('js/vendor/jquery-1.4.2.min.js')
+head += js_file('js/vendor/jquery-ui-1.8.5.custom.min.js')
+html += head
+
+body = e('body')
+
+bg = e('#page-background')
+bg += img('wood-6.jpg', attrs={'id': 'bg'})
+body += bg
+
+content = e('#content')
+
+topBar = e('#topBar')
+topBar += e('#showDescription', 'House Show: Baltimore Arena - Baltimore, MD.')
+topBar += e('#matchDescripton', 'One Fall, 60 Minute Time Limit Match')
+content += topBar
+
+content += e('div{:style => "clear: both;"}')
+
+infoBar = e('#infoBar')
+infoBar += scoreBox(1)
+infoBar += e('#lastAction', 'Hulk Hogan executes a CRUSHING LEGLOCK')
+infoBar += scoreBox(2)
+content += infoBar
+
+content += e('div{:style => "clear: both;"}')
+
+teamTimeBar = e('#teamTimeBar')
+teamTimeBar += teamBox('L')
+
+matchTimeBox = e('#matchTimeBox')
+matchTimeBox += e('#matchTimeLabel', 'Match Time')
+matchTimeBox += e('#matchTimeValue', '1:00')
+teamTimeBar += matchTimeBox
+
+teamTimeBar += teamBox('R')
+content += teamTimeBar
+
+content += actionCard(1)
+
+body += content
+html += body
+page += html
+print page.render()
+
